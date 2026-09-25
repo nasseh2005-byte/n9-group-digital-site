@@ -22,6 +22,7 @@ window.N9_TRANSLATIONS = {
       'أعمالنا': 'Our Work',
       'خطتك': 'Your Project',
       'ابدأ مشروعك ↗': 'Start a Project ↗',
+      'شركاؤنا': 'Partners',
       'N9 GROUP · حلول رقمية متقدمة': 'N9 GROUP · Advanced Digital Solutions',
       'نصنع حضورك الرقمي': 'We build your digital presence',
       'على مستوى آخر.': 'for what comes next.',
