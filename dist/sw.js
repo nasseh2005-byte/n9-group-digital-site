@@ -1,7 +1,8 @@
-const CACHE_NAME = 'n9-group-v3';
+const CACHE_NAME = 'n9-group-v5';
 const CORE = [
-  '/', '/index.html', '/styles.css', '/app.js', '/favicon.svg', '/manifest.webmanifest',
+  '/', '/index.html', '/styles.css?v=5', '/galaxy.css?v=5', '/locales.js?v=5', '/app.js?v=5', '/galaxy.js?v=5', '/favicon.svg', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png',
+  '/assets/n9-group-mark.svg', '/assets/sms-web-logo-dark.png', '/assets/sms-web-logo-light.png', '/assets/apple-logo.svg', '/assets/android-logo.svg',
   ...['taksim', 'funland', 'malki', 'middle-east', 'library', 'n9-law']
     .flatMap((name) => [320, 640].map((size) => `/assets/${name}-${size}.webp`))
 ];
@@ -22,7 +23,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
-  if (request.mode === 'navigate') {
+  if (request.mode === 'navigate' || request.destination === 'script' || request.destination === 'style') {
     event.respondWith(fetch(request).then((response) => {
       if (response.ok) {
         const copy = response.clone();

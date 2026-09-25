@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://n9-group-digital.nasseh2005.chatgpt.site/sitemap.xml
+Sitemap: https://n9-group-ashy.vercel.app/sitemap.xml

@@ -6,10 +6,52 @@
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarsePointer = matchMedia('(pointer: coarse)').matches;
   const normalize = (value) => String(value || '')
-    .toLocaleLowerCase('ar')
+    .toLocaleLowerCase(document.documentElement.lang === 'en' ? 'en' : 'ar')
     .normalize('NFKD')
     .replace(/[\u064b-\u065f]/g, '')
     .trim();
+
+  const locales = window.N9_TRANSLATIONS || {};
+  let currentLang = document.documentElement.lang === 'en' ? 'en' : 'ar';
+  const originalTitle = document.title;
+  const descriptionMeta = document.querySelector('meta[name="description"]');
+  const originalDescription = descriptionMeta?.content || '';
+  const staticText = [];
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (!/[\u0600-\u06ff]/.test(node.nodeValue || '')) return NodeFilter.FILTER_REJECT;
+      if (node.parentElement?.closest('script, style')) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  while (walker.nextNode()) staticText.push({ node: walker.currentNode, original: walker.currentNode.nodeValue });
+  const staticAttributes = [];
+  for (const element of document.querySelectorAll('[aria-label], [title], [placeholder], [alt]')) {
+    for (const name of ['aria-label', 'title', 'placeholder', 'alt']) {
+      const original = element.getAttribute(name);
+      if (original && /[\u0600-\u06ff]/.test(original)) staticAttributes.push({ element, name, original });
+    }
+  }
+  function translated(original) {
+    if (currentLang !== 'en') return original;
+    return locales.en?.text?.[original] || locales.en?.attributes?.[original] || original;
+  }
+  const englishUI = () => locales.en?.dynamic?.ui || {};
+  const formatText = (template, values = {}) => String(template || '').replace(/\{(\w+)\}/g,
+    (_, key) => String(values[key] ?? ''));
+  function translateStaticText() {
+    for (const { node, original } of staticText) {
+      const value = original.trim();
+      if (!value) continue;
+      const start = original.indexOf(value);
+      node.nodeValue = original.slice(0, start) + translated(value) + original.slice(start + value.length);
+    }
+    for (const { element, name, original } of staticAttributes) element.setAttribute(name, translated(original));
+    document.title = currentLang === 'en' ? (locales.en?.title || originalTitle) : originalTitle;
+    if (descriptionMeta) descriptionMeta.content = currentLang === 'en'
+      ? (locales.en?.description || originalDescription) : originalDescription;
+  }
+  translateStaticText();
 
   document.documentElement.classList.add('has-js');
 
@@ -52,7 +94,7 @@
       for (let y = 0; y < mask.height; y += step) {
         for (let x = 0; x < mask.width; x += step) {
           if (pixels[(y * mask.width + x) * 4 + 3] < 120 || Math.random() < .28) continue;
-          const tx = width * (width < 530 ? .5 : .27)
+          const tx = width * (width < 530 ? .5 : document.documentElement.dir === 'ltr' ? .73 : .27)
             + (x - mask.width / 2) * Math.min(1.55, width / mask.width * .8);
           const ty = height * (width < 530 ? .82 : .49)
             + (y - mask.height / 2) * 1.28;
@@ -75,9 +117,10 @@
 
     function drawStars() {
       ctx.clearRect(0, 0, width, height);
+      const lightTheme = document.documentElement.dataset.theme === 'light';
       for (const star of ambient) {
         ctx.beginPath();
-        ctx.fillStyle = `rgba(210,224,255,${star.alpha})`;
+        ctx.fillStyle = lightTheme ? `rgba(42,67,112,${star.alpha * .75})` : `rgba(210,224,255,${star.alpha})`;
         const y = (star.y + parallax * star.depth) % height;
         ctx.arc(star.x, y, star.radius, 0, Math.PI * 2);
         ctx.fill();
@@ -97,12 +140,15 @@
         star.y += star.vy;
         const selected = distance < 100 && !coarsePointer && !reducedMotion;
         ctx.beginPath();
-        ctx.fillStyle = selected ? 'rgba(229,199,127,.95)' : `rgba(204,223,255,${star.alpha})`;
+        ctx.fillStyle = selected ? (lightTheme ? 'rgba(145,91,28,.95)' : 'rgba(229,199,127,.95)')
+          : (lightTheme ? `rgba(45,72,119,${star.alpha})` : `rgba(204,223,255,${star.alpha})`);
         ctx.arc(star.x, star.y, selected ? star.radius * 1.55 : star.radius, 0, Math.PI * 2);
         ctx.fill();
         if (selected && distance < 70) {
           ctx.beginPath();
-          ctx.strokeStyle = `rgba(222,192,120,${(1 - distance / 70) * .24})`;
+          ctx.strokeStyle = lightTheme
+            ? `rgba(143,93,31,${(1 - distance / 70) * .24})`
+            : `rgba(222,192,120,${(1 - distance / 70) * .24})`;
           ctx.moveTo(star.x, star.y);
           ctx.lineTo(pointer.x, pointer.y);
           ctx.stroke();
@@ -128,6 +174,8 @@
       window.addEventListener('pointerup', () => { pointer.down = false; });
     }
     window.addEventListener('resize', layoutStars, { passive: true });
+    document.addEventListener('n9-themechange', () => { if (reducedMotion) drawStars(); });
+    document.addEventListener('n9-languagechange', layoutStars);
     layoutStars();
     document.fonts?.ready.then(layoutStars);
     window.addEventListener('scroll', () => {
@@ -202,6 +250,30 @@
   ];
   let tasks = initialTasks.map((task) => ({ ...task }));
   let nextTaskId = 4;
+  let demoNotice = { type: 'initial' };
+  function taskTitle(task) {
+    if (currentLang !== 'en') return task.title;
+    const demo = englishUI().demo || {};
+    return task.id <= 3 ? demo.initialTasks?.[task.id - 1] || task.title
+      : formatText(demo.taskAdded, { id: task.id });
+  }
+  function stageName(stage) {
+    return currentLang === 'en' ? englishUI().demo?.stageNames?.[stage] || ''
+      : ['جديد', 'قيد العمل', 'مكتمل'][stage];
+  }
+  function renderDemoNotice() {
+    const output = $('#demo-status');
+    const demo = englishUI().demo || {};
+    if (demoNotice.type === 'initial') output.textContent = translated('هذا نموذج تفاعلي للتوضيح، ولا يستخدم بيانات عملاء حقيقية.');
+    else if (demoNotice.type === 'reset') output.textContent = currentLang === 'en'
+      ? demo.resetStatus : 'أُعيدت البيانات التجريبية إلى بدايتها.';
+    else if (demoNotice.type === 'added') output.textContent = currentLang === 'en'
+      ? formatText(demo.addedStatus, { title: taskTitle(demoNotice.task) })
+      : `أُضيفت «${demoNotice.task.title}» إلى مرحلة جديد.`;
+    else if (demoNotice.type === 'moved') output.textContent = currentLang === 'en'
+      ? formatText(demo.movedStatus, { title: taskTitle(demoNotice.task), stage: stageName(demoNotice.task.stage) })
+      : `انتقلت «${demoNotice.task.title}» إلى ${stageName(demoNotice.task.stage)}.`;
+  }
   function renderTasks() {
     for (let stage = 0; stage < 3; stage++) {
       const stack = $(`#stage-${stage}`);
@@ -213,36 +285,43 @@
         button.type = 'button';
         button.className = 'demo-card';
         button.disabled = task.stage === 2;
-        button.setAttribute('aria-label', task.stage === 2
-          ? `${task.title} مكتملة`
-          : `نقل ${task.title} إلى المرحلة التالية`);
+        const titleText = taskTitle(task);
+        button.setAttribute('aria-label', currentLang === 'en'
+          ? formatText(task.stage === 2 ? englishUI().demo?.completedAria : englishUI().demo?.moveAria, { title: titleText })
+          : task.stage === 2 ? `${task.title} مكتملة` : `نقل ${task.title} إلى المرحلة التالية`);
         const title = document.createElement('strong');
-        title.textContent = task.title;
+        title.textContent = titleText;
         const hint = document.createElement('small');
-        hint.textContent = task.stage === 2 ? 'اكتملت المهمة' : 'اضغط للانتقال للمرحلة التالية ↗';
+        hint.textContent = currentLang === 'en'
+          ? task.stage === 2 ? englishUI().demo?.completedHint : englishUI().demo?.moveHint
+          : task.stage === 2 ? 'اكتملت المهمة' : 'اضغط للانتقال للمرحلة التالية ↗';
         button.append(title, hint);
         button.addEventListener('click', () => {
           task.stage++;
           renderTasks();
-          $('#demo-status').textContent = `انتقلت «${task.title}» إلى ${['جديد', 'قيد العمل', 'مكتمل'][task.stage]}.`;
+          demoNotice = { type: 'moved', task };
+          renderDemoNotice();
         });
         stack.append(button);
       }
     }
   }
   renderTasks();
+  renderDemoNotice();
   $('#demo-add').addEventListener('click', () => {
     const task = { id: nextTaskId, title: `مهمة تجريبية ${nextTaskId}`, stage: 0 };
     nextTaskId++;
     tasks.push(task);
     renderTasks();
-    $('#demo-status').textContent = `أُضيفت «${task.title}» إلى مرحلة جديد.`;
+    demoNotice = { type: 'added', task };
+    renderDemoNotice();
   });
   $('#demo-reset').addEventListener('click', () => {
     tasks = initialTasks.map((task) => ({ ...task }));
     nextTaskId = 4;
     renderTasks();
-    $('#demo-status').textContent = 'أُعيدت البيانات التجريبية إلى بدايتها.';
+    demoNotice = { type: 'reset' };
+    renderDemoNotice();
   });
 
   // Projects retain ordinary external links if JavaScript is unavailable.
@@ -288,8 +367,20 @@
       description: 'مساحة عمل قانونية بنموذج SaaS تُظهر توجهنا نحو الأنظمة المتخصصة.',
       features: ['مساحة عمل رقمية', 'تجربة مخصصة للقطاع القانوني', 'نظام قائم على الويب'],
       url: 'https://n9-law-workspace.n9-law-system.workers.dev/'
+    },
+    sms: {
+      title: 'SMS WEB | N9 SMS', category: 'أرشفة الرسائل · منصة ويب',
+      description: 'مساحة عمل لتنظيم رسائل الشركات والبحث فيها ومطابقتها وتصدير أدلتها.',
+      features: ['استيراد أرشيف XML لكل شركة', 'البحث والمطابقة بمعرّف أو قائمة Excel', 'تصدير PNG وPDF وZIP'],
+      url: 'https://sms-kappa-beige.vercel.app/'
     }
   };
+  function localizedProject(key) {
+    const original = projectData[key];
+    if (currentLang !== 'en') return original;
+    const english = locales.en?.dynamic?.projects?.[key];
+    return english ? { ...original, ...english } : original;
+  }
   const projectCards = $$('.project-card[data-project]');
   let activeFilter = 'all';
   function updateProjects() {
@@ -301,7 +392,9 @@
       card.hidden = !(matchesFilter && matchesQuery);
       if (!card.hidden) visible++;
     }
-    $('#project-count').textContent = `عرض ${visible} من ${projectCards.length} أعمال`;
+    $('#project-count').textContent = currentLang === 'en'
+      ? formatText(englishUI().projectCount, { visible, total: projectCards.length })
+      : `عرض ${visible} من ${projectCards.length} أعمال`;
     $('#project-empty').hidden = visible > 0;
   }
   $$('.filter-button').forEach((button) => button.addEventListener('click', () => {
@@ -314,10 +407,12 @@
     updateProjects();
   }));
   $('#project-search').addEventListener('input', updateProjects);
+  updateProjects();
 
   const detailDialog = $('#detail-dialog');
-  function openProject(key) {
-    const project = projectData[key];
+  let currentProjectKey = null;
+  function showProjectDetails(key) {
+    const project = localizedProject(key);
     if (!project) return;
     $('#detail-category').textContent = project.category;
     $('#detail-title').textContent = project.title;
@@ -332,8 +427,10 @@
     const link = $('#detail-link');
     link.hidden = !project.url;
     if (project.url) link.href = project.url;
-    detailDialog.showModal();
+    if (!detailDialog.open) detailDialog.showModal();
+    currentProjectKey = key;
   }
+  function openProject(key) { showProjectDetails(key); }
   projectCards.forEach((card) => card.addEventListener('click', (event) => {
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     if (card.tagName === 'A') event.preventDefault();
@@ -349,7 +446,9 @@
     const cursor = $('#cursor-label');
     $$('.service-card, .project-card').forEach((card) => {
       card.addEventListener('pointerenter', () => {
-        cursor.textContent = card.classList.contains('service-card') ? 'خطّط لمشروعك ↗' : 'تفاصيل المشروع ↗';
+        cursor.textContent = currentLang === 'en'
+          ? card.classList.contains('service-card') ? englishUI().cursor?.service : englishUI().cursor?.project
+          : card.classList.contains('service-card') ? 'خطّط لمشروعك ↗' : 'تفاصيل المشروع ↗';
         cursor.classList.add('is-visible');
       });
       card.addEventListener('pointermove', (event) => {
@@ -363,36 +462,97 @@
   // The brief keeps only choices on this device; free text is never saved locally.
   const form = $('#brief-form');
   const serviceOptions = $$('input[name="service"]', form);
+  const goalOptions = $$('input[name="goal"]', form);
   const priorityOptions = $$('input[name="priority"]', form);
   const description = $('#brief-description');
   const storageKey = 'n9-brief-choices-v1';
+  const recommendations = {
+    'موقع إلكتروني': {
+      'جذب عملاء جدد': { ar: ['موقع يحوّل الزيارة إلى تواصل', 'اجعل خدماتك واضحة من أول لحظة، وقدّم للزائر طريقاً سهلاً للتواصل معك.'], en: ['A website that turns visits into conversations', 'Present your services clearly and give visitors an easy way to reach you.'], options: ['تصميم وهوية مخصصة', 'تحسين الظهور في البحث', 'حجوزات أو طلبات'] },
+      'تنظيم العمل': { ar: ['موقع متصل بعملياتك', 'اجمع الطلبات والمتابعة في مسار واحد يمنح فريقك وقتاً أكبر لخدمة العملاء.'], en: ['A website connected to your workflow', 'Bring requests and follow-up into one clear flow for your team.'], options: ['لوحة تحكم', 'حجوزات أو طلبات', 'تكاملات API'] },
+      'إطلاق خدمة جديدة': { ar: ['انطلاقة واضحة لخدمتك الجديدة', 'قدّم فكرتك بهوية قوية وتجربة تساعد العملاء على اتخاذ الخطوة التالية.'], en: ['A clear launch for your new service', 'Introduce your offer with a strong identity and a clear next step for customers.'], options: ['تصميم وهوية مخصصة', 'حجوزات أو طلبات', 'لغات متعددة'] }
+    },
+    'نظام SaaS': {
+      'جذب عملاء جدد': { ar: ['منصة تبدأ مع أول عميل', 'امنح المستخدمين تجربة دخول واضحة وخدمة يسهل البدء بها.'], en: ['A platform ready for its first customers', 'Give users a clear entry point and a service that is easy to start using.'], options: ['حسابات مستخدمين', 'تصميم وهوية مخصصة', 'تكاملات API'] },
+      'تنظيم العمل': { ar: ['مساحة عمل تجمع فريقك', 'تابع ما يحدث من لوحة واحدة، وحدد من يصل إلى كل جزء من النظام.'], en: ['One workspace for your team', 'Track work from one dashboard and give each person the access they need.'], options: ['لوحة تحكم', 'حسابات مستخدمين', 'تكاملات API'] },
+      'إطلاق خدمة جديدة': { ar: ['منتج رقمي قابل للنمو', 'ابدأ بالوظائف الأهم، ثم وسّع التجربة بحسب استخدام عملائك.'], en: ['A digital product built to grow', 'Start with the essential features, then expand with your customers’ needs.'], options: ['حسابات مستخدمين', 'لوحة تحكم', 'لغات متعددة'] }
+    },
+    'حل تقني حسب الطلب': {
+      'جذب عملاء جدد': { ar: ['رحلة عميل مصممة لك', 'اربط كل نقطة تواصل بخطوة واضحة تناسب جمهورك وطبيعة خدمتك.'], en: ['A customer journey designed for you', 'Connect every touchpoint to a clear next step that fits your service.'], options: ['حجوزات أو طلبات', 'تكاملات API', 'تصميم وهوية مخصصة'] },
+      'تنظيم العمل': { ar: ['عمليات أقل تعقيداً', 'اربط أدواتك وامنح فريقك لوحة متابعة بدلاً من التنقل بين أنظمة متفرقة.'], en: ['Simpler daily operations', 'Connect your tools and give your team one place to follow the work.'], options: ['تكاملات API', 'لوحة تحكم', 'حسابات مستخدمين'] },
+      'إطلاق خدمة جديدة': { ar: ['حل خاص يفتح خدمة جديدة', 'ابنِ تجربة تناسب فكرتك بدقة، مع أساس يمكن توسيعه لاحقاً.'], en: ['A tailored foundation for a new service', 'Build around your idea with room to expand as it develops.'], options: ['حسابات مستخدمين', 'تكاملات API', 'لغات متعددة'] }
+    },
+    'تطبيق جوال': {
+      'جذب عملاء جدد': { ar: ['علامتك أقرب إلى عملائك', 'قدّم خدمة سهلة الوصول مع تجربة جوال تدعو العملاء للعودة.'], en: ['Keep your brand closer to customers', 'Offer an accessible mobile experience that customers can return to.'], options: ['تصميم وهوية مخصصة', 'إشعارات فورية', 'حسابات مستخدمين'] },
+      'تنظيم العمل': { ar: ['تجربة متنقلة لفريقك وعملائك', 'اجعل المهام والمستجدات متاحة في الوقت المناسب من أي مكان.'], en: ['A mobile flow for your team and customers', 'Keep tasks and updates within reach, wherever work happens.'], options: ['لوحة تحكم', 'حسابات مستخدمين', 'إشعارات فورية'] },
+      'إطلاق خدمة جديدة': { ar: ['انطلاقة على iPhone وAndroid', 'ابدأ بتجربة واضحة للوظائف الأساسية، ثم طوّرها مع جمهورك.'], en: ['Launch on iPhone and Android', 'Start with a focused core experience and grow it with your audience.'], options: ['تصميم وهوية مخصصة', 'حسابات مستخدمين', 'إشعارات فورية'] }
+    }
+  };
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
     if (saved && typeof saved === 'object') {
       serviceOptions.find((input) => input.value === saved.service)?.click();
+      const savedGoal = goalOptions.find((input) => input.value === saved.goal);
+      if (savedGoal) savedGoal.checked = true;
       priorityOptions.forEach((input) => { input.checked = Array.isArray(saved.priorities) && saved.priorities.includes(input.value); });
     }
   } catch { /* Storage can be disabled by the browser. */ }
 
   function updateBrief() {
     const service = serviceOptions.find((input) => input.checked)?.value || 'موقع إلكتروني';
+    const goal = goalOptions.find((input) => input.checked)?.value || 'جذب عملاء جدد';
     const priorities = priorityOptions.filter((input) => input.checked).map((input) => input.value);
     const note = description.value.trim();
-    $('#summary-service').textContent = service;
-    $('#summary-priorities').textContent = priorities.length ? priorities.join(' · ') : 'حدد ما يهمك من القائمة';
+    const brief = englishUI().brief || {};
+    const serviceLabel = currentLang === 'en' ? brief.serviceValues?.[service] || service : service;
+    const goalLabel = currentLang === 'en' ? brief.goalValues?.[goal] || goal : goal;
+    const priorityLabels = currentLang === 'en'
+      ? priorities.map((priority) => brief.priorityValues?.[priority] || priority) : priorities;
+    $('#summary-service').textContent = serviceLabel;
+    $('#summary-goal').textContent = goalLabel;
+    $('#summary-priorities').textContent = priorityLabels.length
+      ? priorityLabels.join(' · ')
+      : currentLang === 'en' ? brief.noPriorities : 'حدد ما يهمك من القائمة';
     $('#char-count').textContent = `${description.value.length} / 500`;
     $$('.service-card').forEach((card) => {
       card.classList.toggle('is-selected', $('.service-select', card).dataset.service === service);
     });
-    const message = [
+    const suggestion = recommendations[service]?.[goal];
+    if (suggestion) {
+      const [title, copy] = currentLang === 'en' ? suggestion.en : suggestion.ar;
+      $('#recommendation-title').textContent = title;
+      $('#recommendation-copy').textContent = copy;
+      const optionList = $('#recommendation-options');
+      optionList.replaceChildren();
+      for (const value of suggestion.options) {
+        const input = priorityOptions.find((item) => item.value === value);
+        if (!input) continue;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'recommendation-option';
+        button.setAttribute('aria-pressed', String(input.checked));
+        button.textContent = `${input.checked ? '✓' : '+'} ${currentLang === 'en' ? brief.priorityValues?.[value] || value : value}`;
+        button.addEventListener('click', () => { input.checked = !input.checked; updateBrief(); });
+        optionList.append(button);
+      }
+    }
+    const message = currentLang === 'en' ? [
+      brief.greeting,
+      formatText(brief.serviceLine, { service: serviceLabel }),
+      formatText(brief.goalLine, { goal: goalLabel }),
+      formatText(brief.prioritiesLine, { priorities: priorityLabels.length ? priorityLabels.join(', ') : brief.decideTogether }),
+      note ? formatText(brief.ideaLine, { note }) : null
+    ].filter(Boolean).join('\n') : [
       'مرحباً N9 GROUP، أود مناقشة مشروع جديد.',
       `نوع المشروع: ${service}`,
+      `هدف المشروع: ${goal}`,
       `الأولويات: ${priorities.length ? priorities.join('، ') : 'نحددها معاً'}`,
       note ? `فكرة المشروع: ${note}` : null
     ].filter(Boolean).join('\n');
     $('#brief-whatsapp').href = `https://wa.me/966530021367?text=${encodeURIComponent(message)}`;
-    $('#brief-email').href = `mailto:nasseh2005@gmail.com?subject=${encodeURIComponent('طلب مشروع جديد — N9 GROUP')}&body=${encodeURIComponent(message)}`;
-    try { localStorage.setItem(storageKey, JSON.stringify({ service, priorities })); }
+    const subject = currentLang === 'en' ? brief.emailSubject : 'طلب مشروع جديد — N9 GROUP';
+    $('#brief-email').href = `mailto:nasseh2005@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+    try { localStorage.setItem(storageKey, JSON.stringify({ service, goal, priorities })); }
     catch { /* The builder still works when storage is unavailable. */ }
   }
   form.addEventListener('input', updateBrief);
@@ -404,29 +564,44 @@
     updateBrief();
     $('#planner').scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
   }));
+  $$('.service-card').forEach((card) => card.addEventListener('click', (event) => {
+    if (event.target.closest('button')) return;
+    $('.service-select', card)?.click();
+  }));
 
   // Keyboard search indexes sections and actual project names.
   const commandDialog = $('#command-dialog');
   const commandInput = $('#command-search');
   const commands = [
-    { title: 'خدماتنا', kind: 'قسم', href: '#services' },
-    { title: 'قوتنا التقنية', kind: 'قسم', href: '#technology' },
-    { title: 'رحلة التنفيذ', kind: 'قسم', href: '#process' },
-    { title: 'مختبر N9', kind: 'قسم', href: '#lab' },
-    { title: 'أعمالنا', kind: 'قسم', href: '#projects' },
-    { title: 'خطتك', kind: 'قسم', href: '#planner' },
-    { title: 'التواصل', kind: 'قسم', href: '#contact' },
+    { title: 'خدماتنا', kind: 'قسم', href: '#services', section: 'services' },
+    { title: 'قوتنا التقنية', kind: 'قسم', href: '#technology', section: 'technology' },
+    { title: 'رحلة التنفيذ', kind: 'قسم', href: '#process', section: 'process' },
+    { title: 'مختبر N9', kind: 'قسم', href: '#lab', section: 'lab' },
+    { title: 'أعمالنا', kind: 'قسم', href: '#projects', section: 'projects' },
+    { title: 'خطتك', kind: 'قسم', href: '#planner', section: 'planner' },
+    { title: 'التواصل', kind: 'قسم', href: '#contact', section: 'contact' },
     ...Object.entries(projectData).map(([key, project]) => ({ title: project.title, kind: 'مشروع', key }))
   ];
+  function commandTitle(item) {
+    if (currentLang !== 'en') return item.title;
+    return item.key ? localizedProject(item.key).title
+      : englishUI().commands?.sections?.[item.section] || item.title;
+  }
+  function commandKind(item) {
+    if (currentLang !== 'en') return item.kind;
+    return item.key ? englishUI().commands?.projectKind : englishUI().commands?.sectionKind;
+  }
   function renderCommands() {
     const query = normalize(commandInput.value);
     const results = $('#command-results');
     results.replaceChildren();
-    const matches = commands.filter((item) => !query || normalize(`${item.title} ${item.kind}`).includes(query)).slice(0, 9);
+    const matches = commands.filter((item) => !query || normalize(
+      `${item.title} ${item.kind} ${commandTitle(item)} ${commandKind(item)}`
+    ).includes(query)).slice(0, 9);
     for (const item of matches) {
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = `${item.title} · ${item.kind}`;
+      button.textContent = `${commandTitle(item)} · ${commandKind(item)}`;
       button.addEventListener('click', () => {
         commandDialog.close();
         if (item.href) document.querySelector(item.href)?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
@@ -434,7 +609,8 @@
       });
       results.append(button);
     }
-    if (!matches.length) results.textContent = 'لا توجد نتيجة مطابقة.';
+    if (!matches.length) results.textContent = currentLang === 'en'
+      ? englishUI().commands?.noResults : 'لا توجد نتيجة مطابقة.';
   }
   function openCommands() {
     commandInput.value = '';
@@ -469,9 +645,9 @@
   $('#copy-email').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText('NASSEH2005@GMAIL.COM');
-      toast('تم نسخ البريد الإلكتروني.');
+      toast(currentLang === 'en' ? englishUI().feedback?.emailCopied : 'تم نسخ البريد الإلكتروني.');
     } catch {
-      toast('تعذّر النسخ تلقائياً؛ يمكنك تحديد البريد ونسخه.');
+      toast(currentLang === 'en' ? englishUI().feedback?.emailCopyFailed : 'تعذّر النسخ تلقائياً؛ يمكنك تحديد البريد ونسخه.');
     }
   });
   $$('.faq-list details').forEach((detail) => detail.addEventListener('toggle', () => {
@@ -493,7 +669,8 @@
     if (!installPrompt) return;
     installPrompt.prompt();
     const choice = await installPrompt.userChoice;
-    if (choice.outcome === 'accepted') toast('أُضيف الموقع إلى جهازك.');
+    if (choice.outcome === 'accepted') toast(currentLang === 'en'
+      ? englishUI().feedback?.siteInstalled : 'أُضيف الموقع إلى جهازك.');
     installPrompt = undefined;
     $('#install-site').hidden = true;
   });
@@ -503,10 +680,63 @@
       if (navigator.share) await navigator.share({ title: 'N9 GROUP', url });
       else {
         await navigator.clipboard.writeText(url);
-        toast('تم نسخ رابط الموقع.');
+        toast(currentLang === 'en' ? englishUI().feedback?.linkCopied : 'تم نسخ رابط الموقع.');
       }
     } catch (error) {
-      if (error?.name !== 'AbortError') toast('تعذّرت المشاركة من هذا المتصفح.');
+      if (error?.name !== 'AbortError') toast(currentLang === 'en'
+        ? englishUI().feedback?.shareFailed : 'تعذّرت المشاركة من هذا المتصفح.');
     }
   });
+
+  const themeButton = $('#theme-toggle');
+  const languageButton = $('#language-toggle');
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  function updateSwitches() {
+    const light = document.documentElement.dataset.theme === 'light';
+    const english = currentLang === 'en';
+    $('.theme-icon', themeButton).textContent = light ? '☾' : '☀';
+    $('.theme-label', themeButton).textContent = light
+      ? (english ? 'Dark' : 'داكن') : (english ? 'Light' : 'فاتح');
+    themeButton.setAttribute('aria-label', light
+      ? (english ? 'Switch to dark mode' : 'تفعيل الوضع الداكن')
+      : (english ? 'Switch to light mode' : 'تفعيل الوضع الفاتح'));
+    themeButton.setAttribute('aria-pressed', String(light));
+    languageButton.textContent = english ? 'العربية' : 'EN';
+    languageButton.lang = english ? 'ar' : 'en';
+    languageButton.setAttribute('aria-label', english ? 'التبديل إلى العربية' : 'Switch to English');
+    if (themeMeta) themeMeta.content = light ? '#f4f7fc' : '#05070d';
+  }
+  function setTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem('n9-theme', theme); } catch { /* Theme still works without storage. */ }
+    updateSwitches();
+    document.dispatchEvent(new Event('n9-themechange'));
+  }
+  themeButton.addEventListener('click', () => setTheme(
+    document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'
+  ));
+  function setLanguage(language) {
+    currentLang = language === 'en' ? 'en' : 'ar';
+    document.documentElement.lang = currentLang;
+    document.documentElement.dir = currentLang === 'en' ? 'ltr' : 'rtl';
+    try { localStorage.setItem('n9-language', currentLang); } catch { /* Language still works without storage. */ }
+    const url = new URL(location.href);
+    if (currentLang === 'en') url.searchParams.set('lang', 'en');
+    else url.searchParams.delete('lang');
+    history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+    translateStaticText();
+    renderTasks();
+    renderDemoNotice();
+    updateProjects();
+    updateBrief();
+    if (commandDialog.open) renderCommands();
+    if (detailDialog.open && currentProjectKey) showProjectDetails(currentProjectKey);
+    const activeStep = $('.process-step.is-active');
+    if (activeStep) $('#process-name').textContent = $('h3', activeStep).textContent;
+    updateSwitches();
+    document.dispatchEvent(new Event('n9-languagechange'));
+  }
+  languageButton.addEventListener('click', () => setLanguage(currentLang === 'en' ? 'ar' : 'en'));
+  try { localStorage.setItem('n9-language', currentLang); } catch { /* No persistent preference. */ }
+  updateSwitches();
 })();
