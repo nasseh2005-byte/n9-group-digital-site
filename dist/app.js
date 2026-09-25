@@ -73,6 +73,12 @@
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
       width = canvas.clientWidth;
       height = canvas.clientHeight;
+      const mobile = width <= 800;
+      const slot = $('.hero-constellation-slot');
+      const heroBounds = hero.getBoundingClientRect();
+      const slotBounds = mobile ? slot?.getBoundingClientRect() : null;
+      const constellationX = slotBounds ? slotBounds.left + slotBounds.width / 2 - heroBounds.left : 0;
+      const constellationY = slotBounds ? slotBounds.top + slotBounds.height / 2 - heroBounds.top : 0;
       canvas.width = Math.round(width * ratio);
       canvas.height = Math.round(height * ratio);
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -83,26 +89,25 @@
       const maskContext = mask.getContext('2d');
       if (!maskContext) return;
       maskContext.fillStyle = '#fff';
-      maskContext.font = `700 ${Math.min(mask.width * .42, 180)}px Space Grotesk, Arial`;
+      maskContext.font = `700 ${mobile ? 128 : Math.min(mask.width * .42, 180)}px Space Grotesk, Arial`;
       maskContext.textAlign = 'center';
       maskContext.textBaseline = 'middle';
       maskContext.fillText('N9', mask.width / 2, mask.height / 2);
 
       const pixels = maskContext.getImageData(0, 0, mask.width, mask.height).data;
-      // On narrow screens the N9 point cloud overlaps the headline and CTAs.
-      // The opening intro already carries the logo, so keep only ambient stars here.
-      const showConstellation = width > 800;
-      const step = 6;
+      // On mobile the N9 constellation has its own space below the copy and CTAs.
+      const step = mobile ? 5 : 6;
       points = [];
-      for (let y = 0; showConstellation && y < mask.height; y += step) {
+      for (let y = 0; y < mask.height; y += step) {
         for (let x = 0; x < mask.width; x += step) {
           if (pixels[(y * mask.width + x) * 4 + 3] < 120 || Math.random() < .28) continue;
-          const tx = width * (width < 530 ? .5 : document.documentElement.dir === 'ltr' ? .73 : .27)
-            + (x - mask.width / 2) * Math.min(1.55, width / mask.width * .8);
-          const ty = height * (width < 530 ? .82 : .49)
-            + (y - mask.height / 2) * 1.28;
+          const tx = (mobile ? constellationX : width * (document.documentElement.dir === 'ltr' ? .73 : .27))
+            + (x - mask.width / 2) * (mobile ? 1.1 : Math.min(1.55, width / mask.width * .8));
+          const ty = (mobile ? constellationY : height * .49)
+            + (y - mask.height / 2) * (mobile ? 1 : 1.28);
           points.push({
-            x: tx + random(-40, 40), y: ty + random(-40, 40), tx, ty,
+            x: tx + random(mobile ? -10 : -40, mobile ? 10 : 40),
+            y: ty + random(mobile ? -10 : -40, mobile ? 10 : 40), tx, ty,
             vx: 0, vy: 0, radius: random(.75, 1.8), alpha: random(.5, 1)
           });
         }
@@ -456,7 +461,9 @@
       : currentLang === 'en' ? brief.noPriorities : 'حدد ما يهمك من القائمة';
     $('#char-count').textContent = `${description.value.length} / 500`;
     $$('.service-card').forEach((card) => {
-      card.classList.toggle('is-selected', $('.service-select', card).dataset.service === service);
+      const selected = $('.service-select', card).dataset.service === service;
+      card.classList.toggle('is-selected', selected);
+      $('.service-select', card).setAttribute('aria-pressed', String(selected));
     });
     const suggestion = recommendations[service]?.[goal];
     if (suggestion) {
@@ -503,12 +510,44 @@
   $$('.service-select').forEach((button) => button.addEventListener('click', () => {
     serviceOptions.find((input) => input.value === button.dataset.service).checked = true;
     updateBrief();
-    $('#planner').scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
   }));
   $$('.service-card').forEach((card) => card.addEventListener('click', (event) => {
     if (event.target.closest('button')) return;
     $('.service-select', card)?.click();
   }));
+
+  const demoLabels = {
+    web: {
+      ar: ['معاينة الموقع على الكمبيوتر؛ اضغط لعرض الجوال', 'معاينة الموقع على الجوال؛ اضغط لعرض الكمبيوتر'],
+      en: ['Website desktop preview. Tap to view mobile.', 'Website mobile preview. Tap to view desktop.'],
+      badges: ['WEB', 'MOBILE']
+    },
+    saas: {
+      ar: ['معاينة لوحة بيانات SaaS؛ اضغط لعرض سير العمل', 'معاينة سير عمل SaaS؛ اضغط لعرض البيانات'],
+      en: ['SaaS data dashboard. Tap to view workflow.', 'SaaS workflow. Tap to view data.'],
+      badges: ['DATA', 'FLOW']
+    },
+    custom: {
+      ar: ['معاينة ربط الأنظمة؛ اضغط لتفعيل المسار', 'مسار الأنظمة متصل؛ اضغط لإعادة المعاينة'],
+      en: ['System integration preview. Tap to connect the flow.', 'Systems connected. Tap to reset the preview.'],
+      badges: ['API', 'SYNC']
+    }
+  };
+  $$('.service-demo').forEach((button) => {
+    const demo = demoLabels[button.dataset.serviceDemo];
+    if (!demo) return;
+    function renderDemo() {
+      const state = button.dataset.state === '1' ? 1 : 0;
+      button.setAttribute('aria-label', demo[currentLang][state]);
+      $('.service-demo-badge', button).textContent = demo.badges[state];
+    }
+    button.addEventListener('click', () => {
+      button.dataset.state = button.dataset.state === '1' ? '0' : '1';
+      renderDemo();
+    });
+    document.addEventListener('n9-languagechange', renderDemo);
+    renderDemo();
+  });
 
   // A small working preview: tapping the phone switches its visible platform.
   const mobilePreview = $('#mobile-app-preview');
