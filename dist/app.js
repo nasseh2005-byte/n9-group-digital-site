@@ -89,9 +89,12 @@
       maskContext.fillText('N9', mask.width / 2, mask.height / 2);
 
       const pixels = maskContext.getImageData(0, 0, mask.width, mask.height).data;
-      const step = width < 650 ? 7 : 6;
+      // On narrow screens the N9 point cloud overlaps the headline and CTAs.
+      // The opening intro already carries the logo, so keep only ambient stars here.
+      const showConstellation = width > 800;
+      const step = 6;
       points = [];
-      for (let y = 0; y < mask.height; y += step) {
+      for (let y = 0; showConstellation && y < mask.height; y += step) {
         for (let x = 0; x < mask.width; x += step) {
           if (pixels[(y * mask.width + x) * 4 + 3] < 120 || Math.random() < .28) continue;
           const tx = width * (width < 530 ? .5 : document.documentElement.dir === 'ltr' ? .73 : .27)
@@ -506,6 +509,27 @@
     if (event.target.closest('button')) return;
     $('.service-select', card)?.click();
   }));
+
+  // A small working preview: tapping the phone switches its visible platform.
+  const mobilePreview = $('#mobile-app-preview');
+  if (mobilePreview) {
+    const platformLogo = $('.mobile-platform-logo', mobilePreview);
+    const platformBadge = $('.mobile-platform-badge', mobilePreview);
+    function renderMobilePreview() {
+      const android = mobilePreview.dataset.platform === 'android';
+      platformLogo.src = android ? 'assets/android-logo.svg' : 'assets/apple-logo.svg';
+      platformBadge.textContent = android ? 'Android' : 'iOS';
+      mobilePreview.setAttribute('aria-label', currentLang === 'en'
+        ? `Previewing ${android ? 'Android' : 'iPhone'} app. Tap to view ${android ? 'iPhone' : 'Android'}.`
+        : `معاينة تطبيق ${android ? 'Android' : 'iPhone'}؛ اضغط لعرض ${android ? 'iPhone' : 'Android'}`);
+    }
+    mobilePreview.addEventListener('click', () => {
+      mobilePreview.dataset.platform = mobilePreview.dataset.platform === 'android' ? 'ios' : 'android';
+      renderMobilePreview();
+    });
+    document.addEventListener('n9-languagechange', renderMobilePreview);
+    renderMobilePreview();
+  }
 
   // Keyboard search indexes sections and actual project names.
   const commandDialog = $('#command-dialog');

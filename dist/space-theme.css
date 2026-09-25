@@ -1,5 +1,4 @@
-/* The editorial pages carry the same night sky as the opening, without
-   changing the separate galaxy and solar-system experiences. */
+/* The editorial pages carry the same night sky as the opening. */
 
 .hero {
   background:
@@ -142,6 +141,112 @@ main .section-copy { color: #b9cadd; }
   box-shadow: 0 0 29px rgba(229, 200, 142, .08);
   font-size: 1.65rem;
 }
+.mobile-app-preview {
+  --preview-accent: #e8c780;
+  position: relative;
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  margin: 29px 0 15px;
+  padding: 0;
+  color: var(--preview-accent);
+  border: 1px solid rgba(232, 199, 128, .62);
+  border-radius: 50%;
+  background: radial-gradient(circle at 48% 38%, rgba(224, 185, 115, .24), rgba(17, 32, 53, .92) 68%);
+  box-shadow: inset 0 1px rgba(255, 244, 214, .29), 0 0 0 6px rgba(232, 199, 128, .055), 0 0 30px rgba(232, 199, 128, .15);
+  cursor: pointer;
+  transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease, background .3s ease;
+}
+.mobile-app-preview:hover,
+.mobile-app-preview:focus-visible {
+  transform: translateY(-3px) rotate(-5deg) scale(1.06);
+  box-shadow: inset 0 1px rgba(255, 244, 214, .42), 0 0 0 8px rgba(232, 199, 128, .095), 0 0 36px rgba(232, 199, 128, .3);
+}
+.mobile-app-preview:focus-visible { outline: 2px solid #f4d899; outline-offset: 7px; }
+.mobile-app-preview[data-platform="android"] {
+  --preview-accent: #9dd8f5;
+  border-color: rgba(157, 216, 245, .7);
+  background: radial-gradient(circle at 48% 38%, rgba(126, 204, 245, .26), rgba(17, 32, 53, .92) 68%);
+  box-shadow: inset 0 1px rgba(224, 246, 255, .3), 0 0 0 6px rgba(157, 216, 245, .06), 0 0 32px rgba(100, 185, 239, .18);
+}
+.mobile-app-orbit {
+  position: absolute;
+  inset: 7px;
+  border: 1px dashed currentColor;
+  border-radius: 50%;
+  opacity: .44;
+  animation: mobile-orbit 18s linear infinite;
+}
+.mobile-app-orbit::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  top: 7px;
+  left: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 11px currentColor;
+}
+.mobile-app-phone {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 49px;
+  padding: 4px 3px 7px;
+  border: 2px solid currentColor;
+  border-radius: 7px;
+  background: #081322;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, .28);
+  animation: mobile-phone-float 3.4s ease-in-out infinite;
+}
+.mobile-app-screen {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border-radius: 3px;
+  background: linear-gradient(145deg, rgba(104, 161, 225, .36), rgba(13, 31, 56, .97));
+  overflow: hidden;
+}
+.mobile-platform-logo {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  filter: invert(91%) sepia(21%) saturate(715%) hue-rotate(345deg) brightness(105%);
+  animation: mobile-logo-enter .35s ease both;
+}
+.mobile-app-preview[data-platform="android"] .mobile-platform-logo {
+  filter: invert(84%) sepia(21%) saturate(730%) hue-rotate(160deg) brightness(102%);
+}
+.mobile-app-home {
+  position: absolute;
+  bottom: 2px;
+  width: 5px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+.mobile-platform-badge {
+  position: absolute;
+  inset-inline-start: -21px;
+  bottom: 1px;
+  min-width: 35px;
+  padding: 2px 5px;
+  border: 1px solid currentColor;
+  border-radius: 100px;
+  background: #0a1727;
+  color: var(--preview-accent);
+  font: 700 .55rem/1.3 'Space Grotesk', sans-serif;
+  direction: ltr;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .3);
+}
+@keyframes mobile-orbit { to { transform: rotate(360deg); } }
+@keyframes mobile-phone-float { 50% { transform: translateY(-3px); } }
+@keyframes mobile-logo-enter { from { opacity: .2; transform: scale(.65); } to { opacity: 1; transform: scale(1); } }
 .service-card p { color: #bdcadb; }
 .service-pills span { background: rgba(151, 184, 232, .07); border-color: rgba(151, 184, 232, .22); }
 
@@ -187,7 +292,7 @@ main .section-copy { color: #b9cadd; }
 .brief-summary { background: linear-gradient(155deg, rgba(32, 55, 89, .92), rgba(9, 20, 38, .97)); }
 .faq-list details[open] { background: linear-gradient(270deg, rgba(75, 114, 173, .09), transparent 73%); }
 
-/* Day mode keeps an airy sky while the separate exploration remains dark. */
+/* Day mode keeps an airy sky across the marketing sections. */
 html[data-theme="light"] .hero,
 html[dir="ltr"][data-theme="light"] .hero {
   background:
@@ -235,6 +340,9 @@ html[data-theme="light"] .service-card:hover,
 html[data-theme="light"] .service-card.is-selected,
 html[data-theme="light"] .project-card[href]:hover { border-color: #b08a4b; box-shadow: inset 0 1px #fff, 0 24px 52px rgba(32, 68, 110, .13); }
 html[data-theme="light"] .service-icon { background: radial-gradient(circle at 36% 28%, #fff, #f1e5ca 95%); border-color: #cdb482; box-shadow: 0 8px 26px rgba(126, 97, 47, .1); }
+html[data-theme="light"] .mobile-app-preview { background: radial-gradient(circle at 48% 38%, #fff, #ead7b2 95%); box-shadow: 0 8px 24px rgba(126, 97, 47, .15); }
+html[data-theme="light"] .mobile-app-preview[data-platform="android"] { background: radial-gradient(circle at 48% 38%, #fff, #c9e7f8 95%); }
+html[data-theme="light"] .mobile-platform-badge { background: #13243c; }
 html[data-theme="light"] .service-pills span { background: #f7f9fc; border-color: #d1ddeb; }
 html[data-theme="light"] .tech-visual,
 html[data-theme="light"] .process-display,
@@ -257,6 +365,10 @@ html[data-theme="light"] .faq-list details[open] { background: linear-gradient(2
 @media (prefers-reduced-motion: reduce) {
   .service-card,
   .project-card { transition: none; }
+  .mobile-app-preview,
+  .mobile-app-orbit,
+  .mobile-app-phone,
+  .mobile-platform-logo { animation: none; transition: none; }
 }
 
 /* The compact mobile route keeps every section within one tap. */
@@ -318,6 +430,7 @@ html[data-theme="light"] .faq-list details[open] { background: linear-gradient(2
   .project-card.feature { flex: 0 0 min(77vw, 310px); scroll-snap-align: start; }
   .service-card { min-height: 275px; padding: 22px; }
   .service-icon { margin-top: 19px; margin-bottom: 12px; }
+  .mobile-app-preview { margin-top: 19px; margin-bottom: 12px; }
   .project-card, .project-card.feature { min-height: 318px; }
   .project-card.feature { display: flex; }
   .project-card.feature .project-visual { height: 160px; border-left: 0; border-bottom: 1px solid rgba(159, 189, 232, .2); }

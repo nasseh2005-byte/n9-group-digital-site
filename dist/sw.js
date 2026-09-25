@@ -1,6 +1,6 @@
-const CACHE_NAME = 'n9-group-v7';
+const CACHE_NAME = 'n9-group-v8';
 const CORE = [
-  '/', '/index.html', '/styles.css?v=7', '/intro.css?v=7', '/space-theme.css?v=7', '/locales.js?v=7', '/app.js?v=7', '/intro.js?v=7', '/favicon.svg', '/manifest.webmanifest',
+  '/', '/index.html', '/styles.css?v=8', '/intro.css?v=8', '/space-theme.css?v=8', '/locales.js?v=8', '/app.js?v=8', '/intro.js?v=8', '/favicon.svg', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png',
   '/assets/n9-group-mark.svg', '/assets/sms-web-logo-dark.png', '/assets/sms-web-logo-light.png', '/assets/apple-logo.svg', '/assets/android-logo.svg',
   '/assets/nasa/nebula.webp',
