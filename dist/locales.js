@@ -393,7 +393,6 @@ window.N9_TRANSLATIONS.en.dynamic.projects.sms = {
 };
 
 Object.assign(window.N9_TRANSLATIONS.en.text, {
-  'المجرة': 'Galaxy',
   'الرئيسية': 'Home',
   'الخدمات': 'Services',
   'الأعمال': 'Work',
@@ -401,11 +400,9 @@ Object.assign(window.N9_TRANSLATIONS.en.text, {
 });
 Object.assign(window.N9_TRANSLATIONS.en.attributes, {
   'مقدمة N9 الفضائية': 'N9 space introduction',
-  'استكشاف المجرّة والنظام الشمسي': 'Explore the galaxy and solar system',
   'اختصارات الجوال': 'Mobile shortcuts',
   'الرئيسية': 'Home',
   'الخدمات': 'Services',
   'الأعمال': 'Work',
   'تواصل معنا': 'Contact us'
 });
-window.N9_TRANSLATIONS.en.dynamic.ui.commands.sections['solar-explorer'] = 'Galaxy';

@@ -332,7 +332,6 @@ html[data-theme="light"] .faq-list details[open] { background: linear-gradient(2
   .section-head { margin-bottom: 26px; }
   .n9intro-scroll { bottom: 105px; }
   .n9intro-credit { bottom: 84px; }
-  .n9sol-galaxy-coordinates { bottom: 91px; }
 }
 @media (max-width: 530px) {
   .hero { min-height: 570px; }
@@ -342,8 +341,6 @@ html[data-theme="light"] .faq-list details[open] { background: linear-gradient(2
   .mobile-quick-nav { inset-inline: 8px; bottom: max(7px, env(safe-area-inset-bottom)); }
   .n9intro-scroll { bottom: 105px; }
   .n9intro-credit { bottom: 84px; }
-  .n9sol-galaxy-coordinates { bottom: 91px; }
-  .n9sol-ai { padding-bottom: 65px; }
 }
 html[data-theme="light"] .mobile-quick-nav { background: rgba(251, 253, 255, .94); border-color: #cbd8e8; box-shadow: 0 12px 34px rgba(34, 64, 102, .18); }
 html[data-theme="light"] .mobile-quick-nav a { color: #375472; }

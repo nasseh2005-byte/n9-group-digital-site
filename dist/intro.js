@@ -3,8 +3,8 @@
   if (!mount) return;
 
   const copy = {
-    ar: { label: 'مقدمة N9 GROUP', subtitle: 'للحلول الرقمية المتطورة', scroll: 'استكشف المجرة' },
-    en: { label: 'N9 GROUP introduction', subtitle: 'Advanced Digital Solutions', scroll: 'Explore the galaxy' }
+    ar: { label: 'مقدمة N9 GROUP', subtitle: 'للحلول الرقمية المتطورة', scroll: 'اكتشف حلولنا' },
+    en: { label: 'N9 GROUP introduction', subtitle: 'Advanced Digital Solutions', scroll: 'Explore our solutions' }
   };
   const lang = () => document.documentElement.lang === 'en' ? 'en' : 'ar';
 
@@ -20,7 +20,7 @@
       <span class="n9intro-tagline"></span>
       <span class="n9intro-rule" aria-hidden="true"></span>
     </div>
-    <a class="n9intro-scroll" href="#solar-explorer"><span class="n9intro-scroll-text"></span><span class="n9intro-scroll-icon" aria-hidden="true"></span></a>
+    <a class="n9intro-scroll" href="#intro"><span class="n9intro-scroll-text"></span><span class="n9intro-scroll-icon" aria-hidden="true"></span></a>
     <a class="n9intro-credit" href="https://science.nasa.gov/asset/webb/cosmic-cliffs-in-the-carina-nebula-nircam-image/" target="_blank" rel="noopener noreferrer">IMAGE: NASA / ESA / CSA / STScI</a>`;
 
   const section = mount.closest('section');

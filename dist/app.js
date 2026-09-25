@@ -511,7 +511,6 @@
   const commandDialog = $('#command-dialog');
   const commandInput = $('#command-search');
   const commands = [
-    { title: 'المجرة', kind: 'قسم', href: '#solar-explorer', section: 'solar-explorer' },
     { title: 'خدماتنا', kind: 'قسم', href: '#services', section: 'services' },
     { title: 'قوتنا التقنية', kind: 'قسم', href: '#technology', section: 'technology' },
     { title: 'رحلة التنفيذ', kind: 'قسم', href: '#process', section: 'process' },
