@@ -1,0 +1,352 @@
+/* The editorial pages carry the same night sky as the opening, without
+   changing the separate galaxy and solar-system experiences. */
+
+.hero {
+  background:
+    linear-gradient(270deg, rgba(2, 6, 16, .91), rgba(2, 7, 19, .69) 52%, rgba(2, 7, 19, .52)),
+    url('assets/nasa/nebula.webp') center 48% / cover no-repeat,
+    radial-gradient(ellipse at 61% 43%, #293f69, #0a1427 52%, #030712 100%);
+  border-bottom-color: rgba(166, 196, 237, .16);
+}
+html[dir="ltr"] .hero {
+  background:
+    linear-gradient(90deg, rgba(2, 6, 16, .91), rgba(2, 7, 19, .69) 52%, rgba(2, 7, 19, .52)),
+    url('assets/nasa/nebula.webp') center 48% / cover no-repeat,
+    radial-gradient(ellipse at 39% 43%, #293f69, #0a1427 52%, #030712 100%);
+}
+.hero::after { background: linear-gradient(transparent, #050a15); }
+.hero h1 { text-shadow: 0 8px 38px rgba(0, 3, 12, .52); }
+.hero-copy { color: #d0dcea; text-shadow: 0 2px 18px rgba(0, 3, 12, .65); }
+.hero .btn-secondary { background: rgba(8, 17, 32, .58); border-color: rgba(194, 214, 244, .37); backdrop-filter: blur(8px); }
+.hero .btn-secondary:hover { border-color: #ecd29e; background: rgba(15, 31, 52, .77); }
+
+main > .services,
+main > .technology,
+main > .process,
+main > .lab,
+main > .projects,
+main > .planner,
+main > .faq,
+main > .contact,
+main > .design-band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+main > .services > .shell,
+main > .technology > .shell,
+main > .process > .shell,
+main > .lab > .shell,
+main > .projects > .shell,
+main > .planner > .shell,
+main > .faq > .shell,
+main > .contact > .shell,
+main > .design-band > .shell { position: relative; z-index: 1; }
+
+main > .services::after,
+main > .technology::after,
+main > .process::after,
+main > .lab::after,
+main > .projects::after,
+main > .planner::after,
+main > .faq::after,
+main > .contact::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .34;
+  background-image:
+    radial-gradient(1px 1px at 14% 23%, #d2e7ff 98%, transparent),
+    radial-gradient(1px 1px at 67% 71%, #fff 98%, transparent),
+    radial-gradient(2px 2px at 88% 18%, #d2e7ff 98%, transparent),
+    radial-gradient(1px 1px at 44% 84%, #e9e0cb 98%, transparent);
+  background-size: 620px 440px;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
+}
+
+main > .services {
+  background:
+    radial-gradient(ellipse at 80% 12%, rgba(72, 110, 173, .23), transparent 44%),
+    linear-gradient(180deg, rgba(4, 9, 21, .86), #06101f 53%, #070e1b),
+    url('assets/nasa/nebula.webp') center 34% / cover no-repeat,
+    #070e1b;
+}
+main > .technology {
+  background: radial-gradient(ellipse at 18% 42%, rgba(52, 90, 149, .27), transparent 50%), linear-gradient(145deg, #070f1e, #030814 78%);
+}
+main > .process {
+  background: radial-gradient(ellipse at 82% 65%, rgba(57, 66, 129, .18), transparent 46%), #050a16;
+}
+main > .lab {
+  background: radial-gradient(ellipse at 18% 8%, rgba(53, 100, 160, .23), transparent 47%), linear-gradient(160deg, #050a16, #0a1224);
+}
+main > .projects {
+  background: radial-gradient(ellipse at 83% 12%, rgba(73, 89, 151, .22), transparent 43%), linear-gradient(#080e1b, #050a15);
+}
+main > .projects::before { opacity: .09; }
+main > .planner {
+  background: radial-gradient(ellipse at 72% 30%, rgba(51, 98, 156, .23), transparent 43%), linear-gradient(145deg, #050a16, #0a1425);
+}
+main > .faq { background: radial-gradient(ellipse at 12% 72%, rgba(60, 78, 140, .16), transparent 43%), #060c19; }
+main > .contact {
+  background:
+    linear-gradient(90deg, rgba(4, 9, 20, .86), rgba(4, 9, 20, .62)),
+    url('assets/nasa/nebula.webp') center 68% / cover no-repeat,
+    radial-gradient(ellipse at 78% 35%, #253a5f, #050b18 73%);
+}
+
+main .section-kicker { color: #e6ce9a; }
+main .section-title { color: #f4f7fd; text-wrap: balance; text-shadow: 0 3px 24px rgba(0, 4, 16, .24); }
+main .section-copy { color: #b9cadd; }
+.design-band {
+  background: linear-gradient(90deg, rgba(21, 37, 63, .94), rgba(8, 18, 34, .98));
+  border-color: rgba(175, 201, 235, .2);
+  box-shadow: inset 0 1px rgba(232, 244, 255, .04), 0 10px 50px rgba(0, 0, 0, .12);
+}
+.design-pill { background: rgba(212, 227, 248, .045); border-color: rgba(177, 204, 240, .27); color: #d6e0f0; }
+
+.service-card,
+.project-card {
+  border-radius: 17px;
+  border-color: rgba(151, 184, 232, .26);
+  background: linear-gradient(148deg, rgba(30, 46, 72, .88), rgba(8, 17, 32, .95) 72%);
+  box-shadow: inset 0 1px rgba(233, 244, 255, .08), 0 19px 48px rgba(0, 3, 12, .16);
+}
+.service-card { min-width: 0; }
+.service-card::before {
+  width: 240px;
+  height: 240px;
+  left: auto;
+  right: -100px;
+  top: -125px;
+  background: radial-gradient(circle, rgba(91, 143, 219, .22), rgba(83, 106, 178, .1) 43%, transparent 72%);
+  pointer-events: none;
+}
+.service-card:hover,
+.service-card.is-selected {
+  border-color: rgba(232, 201, 139, .8);
+  box-shadow: inset 0 1px rgba(255, 244, 220, .17), 0 20px 60px rgba(17, 43, 81, .3), 0 0 42px rgba(116, 151, 209, .1);
+}
+.service-card > * { position: relative; z-index: 1; }
+.service-icon {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 22px;
+  border: 1px solid rgba(229, 200, 142, .35);
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 28%, rgba(223, 194, 134, .17), rgba(223, 194, 134, .035) 69%);
+  box-shadow: 0 0 29px rgba(229, 200, 142, .08);
+  font-size: 1.65rem;
+}
+.service-card p { color: #bdcadb; }
+.service-pills span { background: rgba(151, 184, 232, .07); border-color: rgba(151, 184, 232, .22); }
+
+.tech-visual,
+.process-display,
+.lab-panel,
+.planner-form,
+.brief-summary {
+  border-color: rgba(153, 185, 229, .3);
+  background: linear-gradient(145deg, rgba(27, 44, 71, .84), rgba(8, 17, 33, .94));
+  box-shadow: inset 0 1px rgba(232, 244, 255, .07), 0 28px 70px rgba(0, 3, 12, .24);
+}
+.tech-visual { border-radius: 15px; }
+.tech-list { border-color: rgba(159, 189, 232, .3); }
+.tech-item { border-color: rgba(159, 189, 232, .22); }
+.tech-item:hover { background: linear-gradient(270deg, rgba(75, 116, 177, .085), transparent 75%); }
+.process-step.is-active { background: linear-gradient(270deg, rgba(86, 127, 193, .13), transparent 72%); }
+.lab-panel { border-radius: 20px; }
+.lab-toolbar { background: linear-gradient(90deg, rgba(57, 91, 143, .16), transparent 72%); }
+
+.project-card[href]:hover {
+  border-color: rgba(232, 201, 139, .8);
+  box-shadow: inset 0 1px rgba(255, 244, 220, .14), 0 25px 70px rgba(12, 36, 75, .34), 0 0 40px rgba(95, 137, 204, .09);
+}
+.project-visual {
+  position: relative;
+  background: radial-gradient(ellipse at 49% 41%, #253e62, #0b172b 68%, #08101e);
+  border-color: rgba(159, 189, 232, .2);
+}
+.project-visual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 48% 21%, rgba(161, 195, 248, .14), transparent 57%);
+}
+.project-visual img,
+.project-visual .ium-symbol { position: relative; z-index: 1; }
+.project-visual.taksim img { position: absolute; inset: 0; }
+.project-card .project-content { background: linear-gradient(150deg, rgba(19, 35, 58, .4), rgba(7, 15, 29, .2)); }
+.project-content p { color: #b9c8da; }
+.project-visit { color: #f0d59c; }
+.brief-summary { background: linear-gradient(155deg, rgba(32, 55, 89, .92), rgba(9, 20, 38, .97)); }
+.faq-list details[open] { background: linear-gradient(270deg, rgba(75, 114, 173, .09), transparent 73%); }
+
+/* Day mode keeps an airy sky while the separate exploration remains dark. */
+html[data-theme="light"] .hero,
+html[dir="ltr"][data-theme="light"] .hero {
+  background:
+    linear-gradient(90deg, rgba(250, 252, 255, .9), rgba(242, 248, 255, .83) 52%, rgba(231, 241, 253, .75)),
+    url('assets/nasa/nebula.webp') center 48% / cover no-repeat,
+    radial-gradient(ellipse at 72% 42%, #bed4eb, #f8fbff 75%);
+  border-color: #d4e1ee;
+}
+html[dir="rtl"][data-theme="light"] .hero {
+  background:
+    linear-gradient(270deg, rgba(250, 252, 255, .93), rgba(242, 248, 255, .84) 52%, rgba(231, 241, 253, .7)),
+    url('assets/nasa/nebula.webp') center 48% / cover no-repeat,
+    radial-gradient(ellipse at 28% 42%, #bed4eb, #f8fbff 75%);
+}
+html[data-theme="light"] .hero::after { background: linear-gradient(transparent, #f5f8fc); }
+html[data-theme="light"] .hero h1,
+html[data-theme="light"] .hero-copy { text-shadow: none; }
+html[data-theme="light"] .hero-copy { color: #465f7a; }
+html[data-theme="light"] .hero .btn-secondary { color: #29435e; background: rgba(255, 255, 255, .82); border-color: #afc4db; }
+html[data-theme="light"] .hero .btn-secondary:hover { background: #fff; border-color: #9e7a40; }
+html[data-theme="light"] main > .services { background: radial-gradient(ellipse at 76% 10%, rgba(171, 202, 235, .22), transparent 45%), #f5f8fc; }
+html[data-theme="light"] main > .technology { background: radial-gradient(ellipse at 18% 42%, rgba(177, 205, 236, .19), transparent 49%), #fff; }
+html[data-theme="light"] main > .process { background: radial-gradient(ellipse at 82% 65%, rgba(186, 204, 234, .18), transparent 46%), #f3f7fc; }
+html[data-theme="light"] main > .lab { background: radial-gradient(ellipse at 16% 13%, rgba(168, 203, 240, .22), transparent 43%), #fff; }
+html[data-theme="light"] main > .projects { background: radial-gradient(ellipse at 83% 12%, rgba(175, 200, 235, .21), transparent 45%), #edf3fa; }
+html[data-theme="light"] main > .planner { background: radial-gradient(ellipse at 72% 30%, rgba(173, 204, 238, .16), transparent 44%), #fff; }
+html[data-theme="light"] main > .faq { background: #f5f8fc; }
+html[data-theme="light"] main > .contact { background: radial-gradient(ellipse at 80% 34%, rgba(160, 196, 232, .19), transparent 48%), linear-gradient(135deg, #e8f1fa, #fbfdff); }
+html[data-theme="light"] main > .services::after,
+html[data-theme="light"] main > .technology::after,
+html[data-theme="light"] main > .process::after,
+html[data-theme="light"] main > .lab::after,
+html[data-theme="light"] main > .projects::after,
+html[data-theme="light"] main > .planner::after,
+html[data-theme="light"] main > .faq::after,
+html[data-theme="light"] main > .contact::after { opacity: .15; filter: invert(1); }
+html[data-theme="light"] main .section-title { color: #1d314a; text-shadow: none; }
+html[data-theme="light"] main .section-kicker { color: #845e23; }
+html[data-theme="light"] main .section-copy { color: #526981; }
+html[data-theme="light"] .design-band { background: linear-gradient(90deg, #e6eef9, #f4f8fc); border-color: #cfdeeb; box-shadow: inset 0 1px #fff; }
+html[data-theme="light"] .design-pill { color: #415c79; background: rgba(255, 255, 255, .69); border-color: #c2d1e2; }
+html[data-theme="light"] .service-card,
+html[data-theme="light"] .project-card { background: linear-gradient(150deg, #fff, #f5f9fd 83%); border-color: #cedce9; box-shadow: inset 0 1px #fff, 0 20px 48px rgba(26, 58, 96, .08); }
+html[data-theme="light"] .service-card:hover,
+html[data-theme="light"] .service-card.is-selected,
+html[data-theme="light"] .project-card[href]:hover { border-color: #b08a4b; box-shadow: inset 0 1px #fff, 0 24px 52px rgba(32, 68, 110, .13); }
+html[data-theme="light"] .service-icon { background: radial-gradient(circle at 36% 28%, #fff, #f1e5ca 95%); border-color: #cdb482; box-shadow: 0 8px 26px rgba(126, 97, 47, .1); }
+html[data-theme="light"] .service-pills span { background: #f7f9fc; border-color: #d1ddeb; }
+html[data-theme="light"] .tech-visual,
+html[data-theme="light"] .process-display,
+html[data-theme="light"] .lab-panel,
+html[data-theme="light"] .planner-form,
+html[data-theme="light"] .brief-summary { background: linear-gradient(150deg, #fff, #f0f5fb); border-color: #cddce9; box-shadow: inset 0 1px #fff, 0 21px 52px rgba(28, 58, 94, .07); }
+html[data-theme="light"] .lab-toolbar { background: linear-gradient(90deg, rgba(159, 191, 227, .14), transparent 72%); }
+html[data-theme="light"] .project-visual { background: radial-gradient(ellipse at 49% 41%, #e0edf9, #f6fafe 75%); border-color: #d6e3ef; }
+html[data-theme="light"] .project-visual::before { background: radial-gradient(ellipse at 48% 21%, rgba(255, 255, 255, .54), transparent 57%); }
+html[data-theme="light"] .project-card .project-content { background: transparent; }
+html[data-theme="light"] .project-content p { color: #526981; }
+html[data-theme="light"] .project-visit { color: #78551f; }
+html[data-theme="light"] .faq-list details[open] { background: linear-gradient(270deg, rgba(170, 199, 231, .14), transparent 73%); }
+
+@media (max-width: 800px) {
+  .service-card,
+  .project-card { border-radius: 14px; }
+  .hero { background-position: center, 56% center, center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .service-card,
+  .project-card { transition: none; }
+}
+
+/* The compact mobile route keeps every section within one tap. */
+.mobile-quick-nav { display: none; }
+.project-card[hidden], .service-card[hidden] { display: none !important; }
+@media (max-width: 800px) {
+  .mobile-quick-nav {
+    position: fixed;
+    z-index: 80;
+    inset-inline: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: center;
+    min-height: 65px;
+    padding: 5px 5px;
+    border: 1px solid rgba(186, 211, 241, .31);
+    border-radius: 19px;
+    background: rgba(8, 17, 33, .91);
+    box-shadow: 0 15px 38px rgba(0, 4, 14, .43);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .mobile-quick-nav a {
+    min-width: 0;
+    min-height: 54px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    color: #d0ddef;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .mobile-quick-nav a:hover,
+  .mobile-quick-nav a:focus-visible,
+  .mobile-quick-nav a[aria-current="location"] { background: rgba(215, 190, 136, .15); color: #f4d699; }
+  .mobile-quick-nav a > span { font: 700 1.22rem/1 'Space Grotesk', sans-serif; }
+  .mobile-quick-nav a > small { font-size: .63rem; white-space: nowrap; }
+  body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+  .hero { min-height: 620px; }
+  main section { padding-block: 68px; }
+  .service-grid,
+  .project-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 8px;
+    padding: 5px 2px 16px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(183, 203, 234, .45) transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+  .service-card,
+  .project-card,
+  .project-card.feature { flex: 0 0 min(77vw, 310px); scroll-snap-align: start; }
+  .service-card { min-height: 275px; padding: 22px; }
+  .service-icon { margin-top: 19px; margin-bottom: 12px; }
+  .project-card, .project-card.feature { min-height: 318px; }
+  .project-card.feature { display: flex; }
+  .project-card.feature .project-visual { height: 160px; border-left: 0; border-bottom: 1px solid rgba(159, 189, 232, .2); }
+  .project-visual { height: 160px; }
+  .project-card.feature .project-visual img { width: 135px; height: 135px; }
+  .project-card .project-content, .project-card.feature .project-content { padding: 17px 18px 19px; }
+  .project-card.feature .project-content h3 { font-size: 1.22rem; margin: 8px 0; }
+  .project-card.feature .project-content p { font-size: .91rem; }
+  .project-tools { gap: 12px; }
+  .project-filters { overflow-x: auto; flex-wrap: nowrap; white-space: nowrap; scrollbar-width: none; }
+  .project-filters::-webkit-scrollbar { display: none; }
+  .section-head { margin-bottom: 26px; }
+  .n9intro-scroll { bottom: 105px; }
+  .n9intro-credit { bottom: 84px; }
+  .n9sol-galaxy-coordinates { bottom: 91px; }
+}
+@media (max-width: 530px) {
+  .hero { min-height: 570px; }
+  .hero-inner { padding-top: 54px; }
+  main section { padding-block: 58px; }
+  .service-card, .project-card, .project-card.feature { flex-basis: min(80vw, 310px); }
+  .mobile-quick-nav { inset-inline: 8px; bottom: max(7px, env(safe-area-inset-bottom)); }
+  .n9intro-scroll { bottom: 105px; }
+  .n9intro-credit { bottom: 84px; }
+  .n9sol-galaxy-coordinates { bottom: 91px; }
+  .n9sol-ai { padding-bottom: 65px; }
+}
+html[data-theme="light"] .mobile-quick-nav { background: rgba(251, 253, 255, .94); border-color: #cbd8e8; box-shadow: 0 12px 34px rgba(34, 64, 102, .18); }
+html[data-theme="light"] .mobile-quick-nav a { color: #375472; }
+html[data-theme="light"] .mobile-quick-nav a:hover,
+html[data-theme="light"] .mobile-quick-nav a:focus-visible,
+html[data-theme="light"] .mobile-quick-nav a[aria-current="location"] { background: #f4e9d1; color: #79541f; }

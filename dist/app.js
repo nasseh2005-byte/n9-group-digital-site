@@ -138,7 +138,7 @@
         star.vy = (star.vy + (star.ty - star.y) * .018) * .88;
         star.x += star.vx;
         star.y += star.vy;
-        const selected = distance < 100 && !coarsePointer && !reducedMotion;
+        const selected = distance < 100;
         ctx.beginPath();
         ctx.fillStyle = selected ? (lightTheme ? 'rgba(145,91,28,.95)' : 'rgba(229,199,127,.95)')
           : (lightTheme ? `rgba(45,72,119,${star.alpha})` : `rgba(204,223,255,${star.alpha})`);
@@ -157,22 +157,36 @@
       if (!reducedMotion) requestAnimationFrame(drawStars);
     }
 
-    if (!coarsePointer && !reducedMotion) {
-      hero.addEventListener('pointermove', (event) => {
-        const bounds = hero.getBoundingClientRect();
-        pointer.x = event.clientX - bounds.left;
-        pointer.y = event.clientY - bounds.top;
-        hero.style.setProperty('--nebula-x', `${pointer.x / width * 100}%`);
-        hero.style.setProperty('--nebula-y', `${pointer.y / height * 100}%`);
-      });
-      hero.addEventListener('pointerleave', () => {
+    let touchReset;
+    function aimAt(event) {
+      const bounds = hero.getBoundingClientRect();
+      pointer.x = event.clientX - bounds.left;
+      pointer.y = event.clientY - bounds.top;
+      hero.style.setProperty('--nebula-x', `${pointer.x / width * 100}%`);
+      hero.style.setProperty('--nebula-y', `${pointer.y / height * 100}%`);
+      if (reducedMotion) drawStars();
+    }
+    hero.addEventListener('pointermove', aimAt, { passive: true });
+    hero.addEventListener('pointerdown', (event) => {
+      clearTimeout(touchReset);
+      pointer.down = true;
+      aimAt(event);
+    }, { passive: true });
+    hero.addEventListener('pointerleave', (event) => {
+      if (event.pointerType === 'touch') return;
+      pointer.x = -9999;
+      pointer.y = -9999;
+      pointer.down = false;
+      if (reducedMotion) drawStars();
+    });
+    window.addEventListener('pointerup', (event) => {
+      pointer.down = false;
+      if (event.pointerType === 'touch') touchReset = setTimeout(() => {
         pointer.x = -9999;
         pointer.y = -9999;
-        pointer.down = false;
-      });
-      hero.addEventListener('pointerdown', () => { pointer.down = true; });
-      window.addEventListener('pointerup', () => { pointer.down = false; });
-    }
+        if (reducedMotion) drawStars();
+      }, 900);
+    });
     window.addEventListener('resize', layoutStars, { passive: true });
     document.addEventListener('n9-themechange', () => { if (reducedMotion) drawStars(); });
     document.addEventListener('n9-languagechange', layoutStars);
@@ -202,12 +216,17 @@
   updateScrollUI();
 
   if ('IntersectionObserver' in window) {
-    const navigation = new Map($$('.desktop-nav a').map((link) => [link.hash.slice(1), link]));
+    const navigation = new Map();
+    for (const link of $$('.desktop-nav a, .mobile-quick-nav a')) {
+      const id = link.hash.slice(1);
+      if (!navigation.has(id)) navigation.set(id, []);
+      navigation.get(id).push(link);
+    }
     const sectionObserver = new IntersectionObserver((entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
-        for (const link of navigation.values()) link.removeAttribute('aria-current');
-        navigation.get(entry.target.id)?.setAttribute('aria-current', 'location');
+        for (const links of navigation.values()) for (const link of links) link.removeAttribute('aria-current');
+        for (const link of navigation.get(entry.target.id) || []) link.setAttribute('aria-current', 'location');
       }
     }, { rootMargin: '-25% 0px -60% 0px' });
     for (const id of navigation.keys()) {
@@ -216,7 +235,7 @@
     }
 
     if (!reducedMotion) {
-      const revealTargets = $$('.section-head, .service-card, .tech-item, .process-step, .lab-panel, .project-card, .planner-form, .brief-summary, .faq-list');
+      const revealTargets = $$('.section-head, .service-card, .tech-item, .process-step, .project-card, .planner-form, .brief-summary, .faq-list');
       const revealObserver = new IntersectionObserver((entries, observer) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
@@ -243,87 +262,6 @@
   }
 
   // A small product demonstration with explicit sample data.
-  const initialTasks = [
-    { id: 1, title: 'طلب استشارة', stage: 0 },
-    { id: 2, title: 'مراجعة مستند', stage: 1 },
-    { id: 3, title: 'متابعة موعد', stage: 2 }
-  ];
-  let tasks = initialTasks.map((task) => ({ ...task }));
-  let nextTaskId = 4;
-  let demoNotice = { type: 'initial' };
-  function taskTitle(task) {
-    if (currentLang !== 'en') return task.title;
-    const demo = englishUI().demo || {};
-    return task.id <= 3 ? demo.initialTasks?.[task.id - 1] || task.title
-      : formatText(demo.taskAdded, { id: task.id });
-  }
-  function stageName(stage) {
-    return currentLang === 'en' ? englishUI().demo?.stageNames?.[stage] || ''
-      : ['جديد', 'قيد العمل', 'مكتمل'][stage];
-  }
-  function renderDemoNotice() {
-    const output = $('#demo-status');
-    const demo = englishUI().demo || {};
-    if (demoNotice.type === 'initial') output.textContent = translated('هذا نموذج تفاعلي للتوضيح، ولا يستخدم بيانات عملاء حقيقية.');
-    else if (demoNotice.type === 'reset') output.textContent = currentLang === 'en'
-      ? demo.resetStatus : 'أُعيدت البيانات التجريبية إلى بدايتها.';
-    else if (demoNotice.type === 'added') output.textContent = currentLang === 'en'
-      ? formatText(demo.addedStatus, { title: taskTitle(demoNotice.task) })
-      : `أُضيفت «${demoNotice.task.title}» إلى مرحلة جديد.`;
-    else if (demoNotice.type === 'moved') output.textContent = currentLang === 'en'
-      ? formatText(demo.movedStatus, { title: taskTitle(demoNotice.task), stage: stageName(demoNotice.task.stage) })
-      : `انتقلت «${demoNotice.task.title}» إلى ${stageName(demoNotice.task.stage)}.`;
-  }
-  function renderTasks() {
-    for (let stage = 0; stage < 3; stage++) {
-      const stack = $(`#stage-${stage}`);
-      stack.replaceChildren();
-      const stageTasks = tasks.filter((task) => task.stage === stage);
-      $(`#count-${stage}`).textContent = stageTasks.length;
-      for (const task of stageTasks) {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'demo-card';
-        button.disabled = task.stage === 2;
-        const titleText = taskTitle(task);
-        button.setAttribute('aria-label', currentLang === 'en'
-          ? formatText(task.stage === 2 ? englishUI().demo?.completedAria : englishUI().demo?.moveAria, { title: titleText })
-          : task.stage === 2 ? `${task.title} مكتملة` : `نقل ${task.title} إلى المرحلة التالية`);
-        const title = document.createElement('strong');
-        title.textContent = titleText;
-        const hint = document.createElement('small');
-        hint.textContent = currentLang === 'en'
-          ? task.stage === 2 ? englishUI().demo?.completedHint : englishUI().demo?.moveHint
-          : task.stage === 2 ? 'اكتملت المهمة' : 'اضغط للانتقال للمرحلة التالية ↗';
-        button.append(title, hint);
-        button.addEventListener('click', () => {
-          task.stage++;
-          renderTasks();
-          demoNotice = { type: 'moved', task };
-          renderDemoNotice();
-        });
-        stack.append(button);
-      }
-    }
-  }
-  renderTasks();
-  renderDemoNotice();
-  $('#demo-add').addEventListener('click', () => {
-    const task = { id: nextTaskId, title: `مهمة تجريبية ${nextTaskId}`, stage: 0 };
-    nextTaskId++;
-    tasks.push(task);
-    renderTasks();
-    demoNotice = { type: 'added', task };
-    renderDemoNotice();
-  });
-  $('#demo-reset').addEventListener('click', () => {
-    tasks = initialTasks.map((task) => ({ ...task }));
-    nextTaskId = 4;
-    renderTasks();
-    demoNotice = { type: 'reset' };
-    renderDemoNotice();
-  });
-
   // Projects retain ordinary external links if JavaScript is unavailable.
   const projectData = {
     taksim: {
@@ -573,10 +511,10 @@
   const commandDialog = $('#command-dialog');
   const commandInput = $('#command-search');
   const commands = [
+    { title: 'المجرة', kind: 'قسم', href: '#solar-explorer', section: 'solar-explorer' },
     { title: 'خدماتنا', kind: 'قسم', href: '#services', section: 'services' },
     { title: 'قوتنا التقنية', kind: 'قسم', href: '#technology', section: 'technology' },
     { title: 'رحلة التنفيذ', kind: 'قسم', href: '#process', section: 'process' },
-    { title: 'مختبر N9', kind: 'قسم', href: '#lab', section: 'lab' },
     { title: 'أعمالنا', kind: 'قسم', href: '#projects', section: 'projects' },
     { title: 'خطتك', kind: 'قسم', href: '#planner', section: 'planner' },
     { title: 'التواصل', kind: 'قسم', href: '#contact', section: 'contact' },
@@ -725,8 +663,6 @@
     else url.searchParams.delete('lang');
     history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
     translateStaticText();
-    renderTasks();
-    renderDemoNotice();
     updateProjects();
     updateBrief();
     if (commandDialog.open) renderCommands();

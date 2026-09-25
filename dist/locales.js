@@ -140,7 +140,7 @@ window.N9_TRANSLATIONS = {
       'ملخص يتغير فوراً مع الاختيارات': 'A brief that updates instantly',
       'حفظ الاختيارات على جهاز الزائر': 'Choices saved on your device',
       'تثبيت الموقع والعمل دون اتصال بعد زيارته': 'Install and revisit the site offline',
-      '05 / شركاؤنا وأعمالنا': '05 / Partners & Work',
+      '04 / شركاؤنا وأعمالنا': '04 / Partners & Work',
       'تجارب رقمية في عوالم مختلفة.': 'Digital experiences across industries.',
       'من الضيافة والترفيه إلى القانون والتعليم، لكل مشروع شخصيته وطريقته في خدمة جمهوره.': 'From hospitality and entertainment to law and education, every project has its own character and way of serving people.',
       'الكل': 'All',
@@ -170,7 +170,7 @@ window.N9_TRANSLATIONS = {
       'واجهة لخدمات الجامعة وأدواتها الرقمية ضمن تجربة موجهة للمستخدم.': 'A user-focused interface for university services and digital tools.',
       'نظام SaaS للمساحات القانونية، يجسّد قدرتنا على تحويل سير العمل المتخصص إلى منتج رقمي متكامل.': 'A SaaS workspace for legal work that turns a specialized workflow into a connected digital product.',
       'لا توجد أعمال تطابق البحث. جرّب كلمة أخرى أو اختر «الكل».': 'No projects match your search. Try another term or select “All.”',
-      '06 / خطتك': '06 / Your Project',
+      '05 / خطتك': '05 / Your Project',
       'حدّد احتياجك في دقيقة.': 'Shape your project in a minute.',
       'اختر نوع المشروع وأولوياتك، وسنجهّز رسالة منظّمة يمكنك إرسالها مباشرة. لا نعرض سعراً أو مدةً قبل معرفة تفاصيل العمل.': 'Choose your project type and priorities. We will prepare a clear message you can send directly. Scope, timing, and pricing come after we understand the work.',
       '01 / ماذا تريد أن تبني؟': '01 / What would you like to build?',
@@ -200,7 +200,7 @@ window.N9_TRANSLATIONS = {
       'إرسال الملخص عبر واتساب': 'Send Brief on WhatsApp',
       'إرساله بالبريد': 'Send by Email',
       'اختياراتك تبقى على جهازك. لا تُرسل إلا عند ضغط زر الإرسال.': 'Your choices stay on this device and are sent only when you choose to send them.',
-      '07 / أسئلة تتكرر': '07 / FAQs',
+      '06 / أسئلة تتكرر': '06 / FAQs',
       'قبل أن نبدأ.': 'Before we begin.',
       'إجابات قصيرة تساعدك تحدد ما تحتاجه ثم نناقش التفاصيل معاً.': 'A few quick answers to help you define what you need before we talk.',
       'هل يمكن بناء نظام خاص بطريقة عمل شركتي؟': 'Can you build a system around the way my company works?',
@@ -211,7 +211,7 @@ window.N9_TRANSLATIONS = {
       'يمكن دراسة الربط عبر واجهات API بحسب الأنظمة المتاحة ومتطلبات الأمان لكل مشروع.': 'We can assess API integrations based on the available systems and each project’s security needs.',
       'كيف أبدأ طلب المشروع؟': 'How do I start a project?',
       'استخدم أداة «خطتك» أعلاه لإرسال ملخص أولي عبر واتساب أو البريد، أو تواصل معنا مباشرة.': 'Use the project planner above to send an initial brief via WhatsApp or email, or contact us directly.',
-      '08 / لنبدأ': '08 / Let’s Begin',
+      '07 / لنبدأ': '07 / Let’s Begin',
       'مشروعك القادم يستحق': 'Your next project deserves',
       'بداية قوية.': 'a strong start.',
       'لديك فكرة لموقع، منصة SaaS أو نظام خاص؟ أخبرنا بما تحتاجه ولنحوّلها إلى تجربة رقمية تترك أثراً.': 'Have an idea for a website, SaaS platform, or custom system? Tell us what you need and let’s build a digital experience that leaves an impression.',
@@ -391,3 +391,21 @@ window.N9_TRANSLATIONS.en.dynamic.projects.sms = {
   description: 'A workspace to organize company SMS archives, search and match records, and export evidence.',
   features: ['Import an XML archive for each company', 'Search and match one identifier or an Excel list', 'Export PNG, PDF, and ZIP files']
 };
+
+Object.assign(window.N9_TRANSLATIONS.en.text, {
+  'المجرة': 'Galaxy',
+  'الرئيسية': 'Home',
+  'الخدمات': 'Services',
+  'الأعمال': 'Work',
+  'تواصل': 'Contact'
+});
+Object.assign(window.N9_TRANSLATIONS.en.attributes, {
+  'مقدمة N9 الفضائية': 'N9 space introduction',
+  'استكشاف المجرّة والنظام الشمسي': 'Explore the galaxy and solar system',
+  'اختصارات الجوال': 'Mobile shortcuts',
+  'الرئيسية': 'Home',
+  'الخدمات': 'Services',
+  'الأعمال': 'Work',
+  'تواصل معنا': 'Contact us'
+});
+window.N9_TRANSLATIONS.en.dynamic.ui.commands.sections['solar-explorer'] = 'Galaxy';

@@ -1,0 +1,184 @@
+/* A quiet, full-screen opening. The solar system belongs in the following section. */
+section.space-intro {
+  padding: 0;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #030610;
+  color: #fff;
+  scroll-margin-top: 0;
+}
+#intro-app {
+  position: relative;
+  min-height: max(640px, calc(100svh - 80px));
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 40% 44% at 68% 36%, rgba(54, 89, 162, .3), transparent 95%),
+    radial-gradient(ellipse 38% 60% at 31% 69%, rgba(98, 39, 90, .21), transparent 98%),
+    #030610;
+}
+.n9intro-photo,
+.n9intro-vignette,
+.n9intro-grain,
+.n9intro-stars,
+.n9intro-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.n9intro-photo {
+  z-index: 0;
+  background:
+    linear-gradient(90deg, rgba(1, 4, 12, .49), rgba(1, 4, 12, .22) 48%, rgba(1, 4, 12, .52)),
+    url('assets/nasa/nebula.webp') center 43% / cover no-repeat;
+  opacity: .72;
+  transform: scale(1.055);
+  animation: n9intro-drift 32s ease-in-out infinite alternate;
+}
+.n9intro-vignette {
+  z-index: 1;
+  background:
+    radial-gradient(ellipse 40% 40% at 50% 49%, rgba(2, 5, 14, .28), rgba(2, 5, 14, .62) 89%, transparent 100%),
+    linear-gradient(180deg, rgba(2, 5, 14, .24) 0%, transparent 28%, transparent 70%, #030610 100%);
+}
+.n9intro-grain {
+  z-index: 2;
+  opacity: .1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E");
+  mix-blend-mode: screen;
+}
+.n9intro-stars { z-index: 3; width: 100%; height: 100%; display: block; }
+.n9intro-glow {
+  z-index: 4;
+  inset: auto;
+  width: min(53vw, 520px);
+  height: min(53vw, 520px);
+  top: 48%; left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(125, 165, 232, .105), rgba(155, 124, 187, .05) 41%, transparent 70%);
+  filter: blur(8px);
+}
+.n9intro-content {
+  position: relative;
+  z-index: 5;
+  width: min(100% - 32px, 780px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 30px 0 65px;
+  text-shadow: 0 2px 22px rgba(0, 4, 13, .8);
+}
+.n9intro-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(156px, 21vw, 244px);
+  aspect-ratio: 1;
+  margin-bottom: -16px;
+  filter: drop-shadow(0 0 38px rgba(221, 190, 127, .24));
+  animation: n9intro-arrive 1.3s ease-out both;
+}
+.n9intro-mark::before {
+  content: '';
+  position: absolute;
+  inset: 9%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(2, 8, 22, .73), rgba(2, 8, 22, .25) 67%, transparent 74%);
+  filter: blur(14px);
+}
+.n9intro-mark img { position: relative; display: block; width: 100%; height: 100%; object-fit: contain; }
+.n9intro-name {
+  margin: 0;
+  font: 700 clamp(2rem, 5vw, 4.45rem)/1 'Space Grotesk', sans-serif;
+  letter-spacing: .24em;
+  padding-inline-start: .24em;
+  color: #fff8e7;
+  text-shadow: 0 0 35px rgba(231, 210, 172, .28);
+  animation: n9intro-arrive 1.3s .12s ease-out both;
+}
+.n9intro-tagline {
+  display: block;
+  margin-top: 17px;
+  color: #f2efe9;
+  font-size: clamp(.96rem, 1.65vw, 1.3rem);
+  font-weight: 600;
+  letter-spacing: .025em;
+  animation: n9intro-arrive 1.3s .24s ease-out both;
+}
+.n9intro-rule {
+  width: 86px;
+  height: 1px;
+  margin-top: 30px;
+  background: linear-gradient(90deg, transparent, #e6cca0, transparent);
+  box-shadow: 0 0 15px #e6cca0;
+  animation: n9intro-arrive 1.3s .36s ease-out both;
+}
+.n9intro-scroll {
+  position: absolute;
+  z-index: 7;
+  bottom: clamp(28px, 5vh, 60px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+  min-width: 140px;
+  color: #e2e9f5;
+  font-size: .78rem;
+  font-weight: 600;
+  text-shadow: 0 2px 12px #000;
+  transition: color .2s;
+}
+.n9intro-scroll:hover { color: #f0d49f; }
+.n9intro-scroll:focus-visible { outline: 2px solid #f0d49f; outline-offset: 7px; }
+.n9intro-scroll-icon {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 38px;
+  border: 1px solid rgba(230, 235, 248, .6);
+  border-radius: 16px;
+}
+.n9intro-scroll-icon::after {
+  content: '';
+  width: 2px;
+  height: 7px;
+  border-radius: 3px;
+  background: #f0d49f;
+  animation: n9intro-scroll 1.9s ease-in-out infinite;
+}
+.n9intro-credit {
+  position: absolute;
+  z-index: 6;
+  inset-inline-end: clamp(17px, 3vw, 48px);
+  bottom: 23px;
+  color: rgba(224, 233, 248, .55);
+  font: 500 .61rem/1.4 'Space Grotesk', sans-serif;
+  letter-spacing: .09em;
+  direction: ltr;
+}
+@keyframes n9intro-drift { from { transform: scale(1.055) translate3d(-.6%, 0, 0); } to { transform: scale(1.12) translate3d(.6%, -.8%, 0); } }
+@keyframes n9intro-arrive { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes n9intro-scroll { 0%, 100% { transform: translateY(-5px); opacity: .4; } 55% { transform: translateY(6px); opacity: 1; } }
+
+html[data-theme='light'] .space-intro { background: #071020; }
+html[data-theme='light'] .n9intro-photo { opacity: .81; }
+html[data-theme='light'] .n9intro-vignette { background: radial-gradient(ellipse 42% 40% at 50% 49%, rgba(2, 5, 14, .18), rgba(2, 5, 14, .54) 89%, transparent 100%), linear-gradient(180deg, rgba(2, 5, 14, .2), transparent 28%, transparent 68%, #071020 100%); }
+
+@media (max-width: 530px) {
+  #intro-app { min-height: max(590px, calc(100svh - 70px)); }
+  .n9intro-photo { background-position: center 45%; }
+  .n9intro-content { padding: 0 0 58px; }
+  .n9intro-mark { margin-bottom: -9px; }
+  .n9intro-name { font-size: clamp(2rem, 11vw, 3.2rem); }
+  .n9intro-tagline { max-width: 300px; line-height: 1.65; margin-top: 11px; }
+  .n9intro-credit { bottom: 11px; font-size: .53rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n9intro-photo, .n9intro-mark, .n9intro-name, .n9intro-tagline, .n9intro-rule, .n9intro-scroll-icon::after { animation: none; }
+}

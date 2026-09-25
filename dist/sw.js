@@ -1,8 +1,10 @@
-const CACHE_NAME = 'n9-group-v5';
+const CACHE_NAME = 'n9-group-v6';
 const CORE = [
-  '/', '/index.html', '/styles.css?v=5', '/galaxy.css?v=5', '/locales.js?v=5', '/app.js?v=5', '/galaxy.js?v=5', '/favicon.svg', '/manifest.webmanifest',
+  '/', '/index.html', '/styles.css?v=6', '/intro.css?v=6', '/solar.css?v=6', '/space-theme.css?v=6', '/locales.js?v=6', '/app.js?v=6', '/intro.js?v=6', '/solar.js?v=6', '/favicon.svg', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png',
   '/assets/n9-group-mark.svg', '/assets/sms-web-logo-dark.png', '/assets/sms-web-logo-light.png', '/assets/apple-logo.svg', '/assets/android-logo.svg',
+  ...['nebula', 'milkyway', 'sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']
+    .map((name) => `/assets/nasa/${name}.webp`),
   ...['taksim', 'funland', 'malki', 'middle-east', 'library', 'n9-law']
     .flatMap((name) => [320, 640].map((size) => `/assets/${name}-${size}.webp`))
 ];
